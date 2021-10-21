@@ -1,0 +1,50 @@
+<JoystickScreen>:
+    on_enter:root.start_joy_thread()
+    name: 'JoystickScreen'
+    joystick_pressed: joystick_pressed
+    joystick_x: joystick_x
+    joystick_y: joystick_y
+    FloatLayout:
+        size_hint: None, None
+    Label:
+        id: joystick_pressed
+        size_hint: None, None
+        text: "not pressed"
+        font_size: 30
+        center_x: root.width * 0.45
+        center_y: root.height * 0.45
+        color: 1, 1, 1, 1
+        bold: True
+        outline_width: self.font_size * 0.1
+        outline_color: 0, 0, 0
+    Label:
+        id: joystick_x
+        size_hint: None, None
+        text: "x = 0"
+        font_size: 30
+        center_x: root.width * 0.45
+        center_y: root.height * 0.75
+        color: 1, 1, 1, 1
+        bold: True
+        outline_width: self.font_size * 0.1
+        outline_color: 0, 0, 0
+    Label:
+        id: joystick_y
+        size_hint: None, None
+        text: "y = 0"
+        font_size: 30
+        center_x: root.width * 0.75
+        center_y: root.height * 0.45
+        color: 1, 1, 1, 1
+        bold: True
+        outline_width: self.font_size * 0.1
+        outline_color: 0, 0, 0
+
+    DPEAButton:
+        id: test_button
+        text: 'test'
+        size: 100, 100
+        x: root.width * 0.75
+        y: root.height * 0.5
+        color: 0, 1, 0, 1
+        on_press: root.updatelabel()

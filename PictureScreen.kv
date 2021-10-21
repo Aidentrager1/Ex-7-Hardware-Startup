@@ -1,0 +1,22 @@
+<PictureScreen>:
+    #: import time __main__.time
+
+    name: 'main'
+    imagebutton1: imagebutton1
+    FloatLayout:
+        size_hint: None, None
+    ImageButton:
+        id: imagebutton
+        size: 100, 100
+        x: root.width * 0.75
+        y: root.height * 0.05
+        source: 'coolimage.jpeg'
+        on_press: root.picture_action()
+
+    ImageButton:
+        id: imagebutton1
+        size: 100, 100
+        x: root.width * 0.05
+        y: root.height * 0.75
+        source: 'coolimage.jpeg'
+        on_press: root.animation()
