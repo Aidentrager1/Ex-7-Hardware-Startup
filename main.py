@@ -1,18 +1,15 @@
 import os
 from threading import Thread
-
 import kivy
 os.environ['DISPLAY'] = ":0.0"
 os.environ['KIVY_WINDOW'] = 'egl_rpi'
 import pygame
-
 from kivy.app import App
 from kivy.core.window import Window
 from kivy.lang import Builder
 from kivy.properties import ObjectProperty
 from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.uix.slider import Slider
-
 from pidev.MixPanel import MixPanel
 from pidev.kivy.PassCodeScreen import PassCodeScreen
 from pidev.kivy.PauseScreen import PauseScreen
@@ -25,7 +22,6 @@ from pidev.Joystick import Joystick
 from datetime import datetime
 from time import sleep
 import itertools
-
 import spidev
 import os
 from time import sleep
@@ -71,6 +67,7 @@ class MainScreen(Screen):
     """
     Class to handle the main screen and its associated touch events
     """
+    Direction = 0
     count = 0
     motor_label = "Off"
     def pressed(self):
@@ -93,6 +90,7 @@ class MainScreen(Screen):
         This method is called from pidev/kivy/PassCodeScreen.kv
         :return: None
         """
+
         SCREEN_MANAGER.current = 'passCode'
     def motor_change(self):
         if self.motor_label.text == "off":
@@ -100,19 +98,78 @@ class MainScreen(Screen):
             s0.softStop()
             sleep(.5)
             s0.go_until_press(0, 20000)
+            self.Direction = 0
         elif self.motor_label.text == "on":
             self.motor_label.text = "off"
             s0.softStop()
             sleep(.5)
             s0.goHome()
+        if self.Direction == 0:
+            self.Direction = 1
+        else:
+            self.Direction = 0
     def motor_change_direction(self):
-        s0.go_until_press(1, 20000)
-
+        if self.Direction == 0:
+            s0.go_until_press(1, 20000)
+            self.Direction = 1
+        else:
+            s0.go_until_press(0, 40000)
+            self.Direction = 0
+    def slider_something(self):
+        s0.go_until_press(0, 400*int(self.slider.value))
     def picture_action(self):
         SCREEN_MANAGER.transition.direction = 'left'
         SCREEN_MANAGER.current = 'joystick'
-
-
+    def special_movements(self):
+        self.motor_label_position.text = str(s0.get_position_in_units())
+        print(str(s0.get_position_in_units()))
+        s0.set_speed(1)
+        s0.start_relative_move(15)
+        while s0.isBusy():
+            sleep(0.1)
+        self.motor_label_position.text = str(s0.get_position_in_units())
+        print(str(s0.get_position_in_units()))
+        sleep(10)
+        s0.set_speed(5)
+        s0.start_relative_move(10)
+        while s0.isBusy():
+            sleep(0.1)
+        self.motor_label_position.text = str(s0.get_position_in_units())
+        print(str(s0.get_position_in_units()))
+        sleep(8)
+        s0.goHome()
+        while s0.isBusy():
+            sleep(0.1)
+        sleep(30)
+        self.motor_label_position.text = str(s0.get_position_in_units())
+        print(str(s0.get_position_in_units()))
+        s0.set_speed(8)
+        s0.start_relative_move(-100)
+        while s0.isBusy():
+            sleep(0.1)
+        self.motor_label_position.text = str(s0.get_position_in_units())
+        print(str(s0.get_position_in_units()))
+        sleep(10)
+        s0.goHome()
+        while s0.isBusy():
+            sleep(0.1)
+        self.motor_label_position.text = str(s0.get_position_in_units())
+        print(str(s0.get_position_in_units()))
+    def start_movement_thread(self):  # This should be inside the MainScreen Class
+        Thread(target=self.special_movements).start()
+# Prints the value of get_position_in_units to a label on the kivy screen
+# 15 turns revolutions clockwise at 1 revolution / sec.
+# Then prints the value of get_position_in_units to a label on the kivy screen
+# Stops 10 seconds then turns clockwise for 10 revolutions at 5 rev / sec.
+# Then prints the value of get_position_in_units to a label on the kivy screen
+# Stops for 8 seconds.
+# Then goes home and stops for 30 seconds.
+# Then prints the value of get_position_in_units to a label on the kivy screen
+# Then turns counter clockwise for 100 revolutions at 8 rev / sec.
+# Then prints the value of get_position_in_units to a label on the kivy screen
+# Then stops for 10 seconds and
+# then goes home and
+# Then prints the value of get_position_in_units to a label on the kivy screen
 class PictureScreen(Screen):
     def picture_action(self):
         SCREEN_MANAGER.transition.direction = 'right'
@@ -232,22 +289,3 @@ if __name__ == "__main__":
     # send_event("Project Initialized")
     # Window.fullscreen = 'auto'
     ProjectNameGUI().run()
-
-# Slider:
-#         id: slider
-#         min: 0
-#         max: 100
-#         step: 1
-#         orientation: 'horizontal'
-#         center_y: root.height * 0.05
-#
-#     Label:
-#         text: str(slider.value)
-#         size_hint: None, None
-#         font_size: 30
-#         center_x: root.width * 0.05
-#         center_y: root.height * 0.05
-#         color: 1, 1, 1, 1
-#         bold: True
-#         outline_width: self.font_size * 0.1
-#         outline_color: 0, 0, 0

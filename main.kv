@@ -1,9 +1,12 @@
 <MainScreen>:
     #: import time __main__.time
+
     btn: btn
     name: 'main'
     motor_label: motor_label
     imagebutton: imagebutton
+    slider: slider
+    motor_label_position: motor_label_position
     FloatLayout:
         size_hint: None, None
 
@@ -26,12 +29,12 @@
 
     DPEAButton:
         id: btn
-        text:"0"
+        text:"change direction"
         size: 100, 100
         x: root.width * 0.25
         y: root.height * 0.25
         color: 1, 0, 0, 1
-        on_press: root.pressed2()
+        on_press: root.motor_change_direction()
 
     SelfUpdatingLabel:
         id: time_label
@@ -52,7 +55,7 @@
         x: root.width * 0.75
         y: root.height * 0.05
         source: 'coolimage.jpeg'
-        on_press: root.picture_action()
+        on_press: root.start_movement_thread()
 
 
     Label:
@@ -62,6 +65,36 @@
         font_size: 30
         center_x: root.width * 0.05
         center_y: root.height * 0.45
+        color: 1, 1, 1, 1
+        bold: True
+        outline_width: self.font_size * 0.1
+        outline_color: 0, 0, 0
+    Slider:
+        id: slider
+        min: 0
+        max: 100
+        step: 1
+        orientation: 'horizontal'
+        center_y: root.height * 0.9
+        size_hint: 1, .1
+        on_value: root.slider_something()
+    Label:
+        text: str(slider.value)
+        size_hint: None, None
+        font_size: 30
+        center_x: root.width * 0.05
+        center_y: root.height * 0.05
+        color: 1, 1, 1, 1
+        bold: True
+        outline_width: self.font_size * 0.1
+        outline_color: 0, 0, 0
+    Label:
+        id: motor_label_position
+        size_hint: None, None
+        text: "Position"
+        font_size: 30
+        center_x: root.width * 0.05
+        center_y: root.height * 0.8
         color: 1, 1, 1, 1
         bold: True
         outline_width: self.font_size * 0.1
