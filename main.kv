@@ -7,6 +7,8 @@
     imagebutton: imagebutton
     slider: slider
     motor_label_position: motor_label_position
+    btn3: btn3
+    on_enter: root.start_button_thread()
     FloatLayout:
         size_hint: None, None
 
@@ -26,6 +28,15 @@
         y: root.height * 0.5
         color: 1, 0, 0, 1
         on_press: root.motor_change()
+
+    DPEAButton:
+        id: btn3
+        text: "Method"
+        size: 100, 100
+        x: root.width * 0.9
+        y: root.height * 0.5
+        color: 1, 0, 0, 1
+        on_press: root.start_movement_thread()
 
     DPEAButton:
         id: btn
@@ -55,7 +66,7 @@
         x: root.width * 0.75
         y: root.height * 0.05
         source: 'coolimage.jpeg'
-        on_press: root.start_movement_thread()
+        on_press: root.picture_action()
 
 
     Label:

@@ -28,12 +28,21 @@ from time import sleep
 import RPi.GPIO as GPIO
 from pidev.stepper import stepper
 from Slush.Devices import L6470Registers
+from pidev.Cyprus_Commands import Cyprus_Commands_RPi as cyprus
+import spidev
+import os
+from time import sleep
+import RPi.GPIO as GPIO
+from pidev.stepper import stepper
+from Slush.Devices import L6470Registers
 spi = spidev.SpiDev()
 
 # Init a 200 steps per revolution stepper on Port 0
 s0 = stepper(port=0, micro_steps=32, hold_current=20, run_current=20, accel_current=20, deaccel_current=20,
              steps_per_unit=200, speed=4)
-
+cyprus.initialize()
+cyprus.setup_servo(2)
+cyprus.set_pwm_values(2, period_value=100000, compare_value=100000, compare_mode=cyprus.LESS_THAN_OR_EQUAL)
 
 time = datetime
 
@@ -70,11 +79,16 @@ class MainScreen(Screen):
     Direction = 0
     count = 0
     motor_label = "Off"
+    counter3 = 0
+    count2 = .55
     def pressed(self):
         """
         Function called on button touch event for button with id: testButton
         :return: None
         """
+        s0.softStop()
+        cyprus.set_pwm_values(2, period_value=100000, compare_value=100000, compare_mode=cyprus.LESS_THAN_OR_EQUAL)
+        sleep(1)
         quit()
 
     def pressed2(self):
@@ -116,50 +130,85 @@ class MainScreen(Screen):
             s0.go_until_press(0, 40000)
             self.Direction = 0
     def slider_something(self):
-        s0.go_until_press(0, 400*int(self.slider.value))
+        s0.go_until_press(0, 800*int(self.slider.value))
     def picture_action(self):
         SCREEN_MANAGER.transition.direction = 'left'
         SCREEN_MANAGER.current = 'joystick'
     def special_movements(self):
-        self.motor_label_position.text = str(s0.get_position_in_units())
-        print(str(s0.get_position_in_units()))
-        s0.set_speed(1)
-        s0.start_relative_move(15)
-        while s0.isBusy():
-            sleep(0.1)
-        self.motor_label_position.text = str(s0.get_position_in_units())
-        print(str(s0.get_position_in_units()))
-        sleep(10)
-        s0.set_speed(5)
-        s0.start_relative_move(10)
-        while s0.isBusy():
-            sleep(0.1)
-        self.motor_label_position.text = str(s0.get_position_in_units())
-        print(str(s0.get_position_in_units()))
-        sleep(8)
-        s0.goHome()
-        while s0.isBusy():
-            sleep(0.1)
-        sleep(30)
-        self.motor_label_position.text = str(s0.get_position_in_units())
-        print(str(s0.get_position_in_units()))
-        s0.set_speed(8)
-        s0.start_relative_move(-100)
-        while s0.isBusy():
-            sleep(0.1)
-        self.motor_label_position.text = str(s0.get_position_in_units())
-        print(str(s0.get_position_in_units()))
-        sleep(10)
-        s0.goHome()
-        while s0.isBusy():
-            sleep(0.1)
-        self.motor_label_position.text = str(s0.get_position_in_units())
-        print(str(s0.get_position_in_units()))
+        while self.counter3 != 20:
+            cyprus.set_servo_position(2, self.count2)
+            self.counter3 += 1
+            self.count2 += .025
+            sleep(1)
+        self.counter3 = 0
+        self.count2 =.55
+        cyprus.set_servo_position(2, .5)
+        # self.motor_label_position.text = str(s0.get_position_in_units())
+        # print(str(s0.get_position_in_units()))
+        # s0.set_speed(1)
+        # s0.start_relative_move(15)
+        # while s0.isBusy():
+        #     sleep(0.1)
+        # self.motor_label_position.text = str(s0.get_position_in_units())
+        # print(str(s0.get_position_in_units()))
+        # sleep(10)
+        # s0.set_speed(5)
+        # s0.start_relative_move(10)
+        # while s0.isBusy():
+        #     sleep(0.1)
+        # self.motor_label_position.text = str(s0.get_position_in_units())
+        # print(str(s0.get_position_in_units()))
+        # sleep(8)
+        # s0.goHome()
+        # while s0.isBusy():
+        #     sleep(0.1)
+        # sleep(30)
+        # self.motor_label_position.text = str(s0.get_position_in_units())
+        # print(str(s0.get_position_in_units()))
+        # s0.set_speed(8)
+        # s0.start_relative_move(-100)
+        # while s0.isBusy():
+        #     sleep(0.1)
+        # self.motor_label_position.text = str(s0.get_position_in_units())
+        # print(str(s0.get_position_in_units()))
+        # sleep(10)
+        # s0.goHome()
+        # while s0.isBusy():
+        #     sleep(0.1)
+        # self.motor_label_position.text = str(s0.get_position_in_units())
+        # print(str(s0.get_position_in_units()))
+    pos3 = 0
+    def switch_action (self):
+        while True:
+            # print(cyprus.read_firmware_version())
+            # print(bin(cyprus.read_gpio()))
+            if (cyprus.read_gpio() & 0b0100):    # binary bitwise AND of the value returned from read.gpio()
+                cyprus.set_servo_position(2, .5)
+                print("no")
+                self.pos3 = 1
+            else:
+                cyprus.set_servo_position(2 , 1)
+                self.pos3 = 0
+                print("yes")
+            sleep(.1)
+        # while True:
+        #     if self.pos3 == 0:
+        #         if (cyprus.read_gpio() & 0b0010):    # binary bitwise AND of the value returned from read.gpio()
+        #             cyprus.set_servo_position(2, 1)
+        #             self.pos3 = 1
+        #     else:
+        #         if (cyprus.read_gpio() & 0b0010):
+        #             cyprus.set_servo_position(2, 0)
+        #             self.pos3 = 0
+        #     sleep(1)
+
     def start_movement_thread(self):  # This should be inside the MainScreen Class
         Thread(target=self.special_movements).start()
+    def start_button_thread(self):  # This should be inside the MainScreen Class
+        Thread(target=self.switch_action).start()
 # Prints the value of get_position_in_units to a label on the kivy screen
 # 15 turns revolutions clockwise at 1 revolution / sec.
-# Then prints the value of get_position_in_units to a label on the kivy screen
+# Then prints the value of get_position_in_units to a lab l on the kivy screen
 # Stops 10 seconds then turns clockwise for 10 revolutions at 5 rev / sec.
 # Then prints the value of get_position_in_units to a label on the kivy screen
 # Stops for 8 seconds.
@@ -245,6 +294,7 @@ class JoystickScreen(Screen):
             sleep(.1)
             self.joystick_x.text = str(self.joystick1.get_both_axes()[0])
             self.joystick_y.text = str(self.joystick1.get_both_axes()[1])
+            cyprus.set_servo_position(2, self.joystick1.get_both_axes()[1]/2+.5)
             self.joystick_x.center_x += self.joystick1.get_both_axes()[0] * 100
             self.joystick_y.center_y += self.joystick1.get_both_axes()[1] * 100
             sleep(.1)

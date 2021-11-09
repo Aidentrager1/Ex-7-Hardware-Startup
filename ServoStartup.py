@@ -63,7 +63,7 @@ s0 = stepper(port=0, micro_steps=32, hold_current=20, run_current=20, accel_curr
 # large motors.
 #
 # In addition to creating PWM that is used to control servo motors and servo motor style motor controllers the software
-# library has been designed to also create non servo specific PWM for controlling industry standard motor controllers.
+# library has been designedlso create  to anon servo specific PWM for controlling industry standard motor controllers.
 # Basically the Servo PWM is a special case of industry standard PWM, hopefully we will get to more on this later.
 #
 
